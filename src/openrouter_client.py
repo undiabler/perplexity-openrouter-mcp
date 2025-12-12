@@ -3,12 +3,11 @@ Generic OpenRouter client using OpenAI SDK with async support.
 """
 
 import os
+
 import httpx
 from openai import AsyncOpenAI
 
-
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
-
 
 class OpenRouterClient:
     """

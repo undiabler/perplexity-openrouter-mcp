@@ -9,23 +9,20 @@ import os
 from contextlib import asynccontextmanager
 
 from fastmcp import FastMCP
-from fastmcp.server.middleware import Middleware, MiddlewareContext
-from fastmcp.server.dependencies import get_http_headers
 from fastmcp.exceptions import ToolError
+from fastmcp.server.dependencies import get_http_headers
+from fastmcp.server.middleware import Middleware, MiddlewareContext
 
 from src.perplexity_search import PerplexitySearch
 
-
 # Global reference for tools to access
 _search: PerplexitySearch | None = None
-
 
 def get_search() -> PerplexitySearch:
     """Get the PerplexitySearch instance."""
     if _search is None:
         raise RuntimeError("PerplexitySearch not initialized")
     return _search
-
 
 @asynccontextmanager
 async def lifespan(app):
@@ -43,7 +40,6 @@ async def lifespan(app):
         await _search.close()
         _search = None
         print("Server stopped.")
-
 
 class BearerAuthMiddleware(Middleware):
     """Validate Bearer token from Authorization header."""
@@ -65,10 +61,8 @@ class BearerAuthMiddleware(Middleware):
 
         return await call_next(context)
 
-
 mcp = FastMCP("Perplexity MCP Server", lifespan=lifespan)
 mcp.add_middleware(BearerAuthMiddleware())
-
 
 @mcp.tool()
 async def perplexity_search(query: str) -> dict:
@@ -86,7 +80,6 @@ async def perplexity_search(query: str) -> dict:
     """
     return await get_search().perplexity_search(query)
 
-
 @mcp.tool()
 async def perplexity_ask(query: str) -> dict:
     """
@@ -103,7 +96,6 @@ async def perplexity_ask(query: str) -> dict:
     """
     return await get_search().perplexity_ask(query)
 
-
 @mcp.tool()
 async def perplexity_research(query: str) -> dict:
     """
@@ -119,7 +111,6 @@ async def perplexity_research(query: str) -> dict:
         Dict with answer and sources (list of {url, title} citations)
     """
     return await get_search().perplexity_research(query)
-
 
 @mcp.tool()
 async def perplexity_reason(query: str) -> dict:
