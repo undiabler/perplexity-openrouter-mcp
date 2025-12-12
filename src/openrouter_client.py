@@ -15,13 +15,12 @@ class OpenRouterClient:
     Validates API key on initialization.
     """
 
-    def __init__(self, api_key: str | None = None, timeout: float = 120.0):
+    def __init__(self, api_key: str | None = None):
         """
         Initialize OpenRouter client.
 
         Args:
             api_key: OpenRouter API key (defaults to OPENROUTER_API_KEY env var)
-            timeout: Request timeout in seconds (default: 120.0)
 
         Raises:
             ValueError: If API key is not provided or invalid
@@ -33,12 +32,11 @@ class OpenRouterClient:
                 "Set OPENROUTER_API_KEY environment variable."
             )
 
-        self.timeout = timeout
         self._client: AsyncOpenAI | None = None
 
     async def _validate_api_key(self) -> None:
         """Validate API key via OpenRouter auth endpoint."""
-        async with httpx.AsyncClient(timeout=self.timeout) as http:
+        async with httpx.AsyncClient() as http:
             response = await http.get(
                 f"{OPENROUTER_BASE_URL}/auth/key",
                 headers={"Authorization": f"Bearer {self.api_key}"},
@@ -55,7 +53,6 @@ class OpenRouterClient:
             self._client = AsyncOpenAI(
                 base_url=OPENROUTER_BASE_URL,
                 api_key=self.api_key,
-                timeout=self.timeout,
             )
         return self._client
 
@@ -63,7 +60,6 @@ class OpenRouterClient:
         self,
         prompt: str,
         model: str,
-        max_tokens: int = 4096,
         system_prompt: str | None = None,
     ) -> dict:
         """
@@ -72,7 +68,6 @@ class OpenRouterClient:
         Args:
             prompt: User prompt/question (required)
             model: Model identifier (required, e.g. "perplexity/sonar-pro")
-            max_tokens: Max response tokens (default: 4096)
             system_prompt: Optional system message
 
         Returns:
@@ -88,7 +83,6 @@ class OpenRouterClient:
         response = await client.chat.completions.create(
             model=model,
             messages=messages,
-            max_tokens=max_tokens,
         )
 
         choice = response.choices[0]

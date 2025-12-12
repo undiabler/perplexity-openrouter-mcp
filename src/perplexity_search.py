@@ -18,15 +18,14 @@ class PerplexitySearch:
     MODEL_RESEARCH = "perplexity/sonar-deep-research"
     MODEL_REASON = "perplexity/sonar-reasoning-pro"
 
-    def __init__(self, api_key: str | None = None, timeout: float = 120.0):
+    def __init__(self, api_key: str | None = None):
         """
         Initialize Perplexity search service.
 
         Args:
             api_key: OpenRouter API key (defaults to OPENROUTER_API_KEY env var)
-            timeout: Request timeout in seconds (default: 120.0)
         """
-        self.client = OpenRouterClient(api_key=api_key, timeout=timeout)
+        self.client = OpenRouterClient(api_key=api_key)
 
     def _format_citations(self, content: str, annotations: list | None) -> list[dict]:
         """
@@ -66,14 +65,13 @@ class PerplexitySearch:
 
         return sources
 
-    async def _query(self, query: str, model: str, max_tokens: int = 4096) -> dict:
+    async def _query(self, query: str, model: str) -> dict:
         """
         Internal method to query a Perplexity model.
 
         Args:
             query: User query
             model: Perplexity model to use
-            max_tokens: Max response tokens
 
         Returns:
             Dict with answer and sources
@@ -81,7 +79,6 @@ class PerplexitySearch:
         response = await self.client.chat_completion(
             prompt=query,
             model=model,
-            max_tokens=max_tokens,
         )
 
         sources = self._format_citations(response["content"], response["annotations"])
@@ -128,7 +125,7 @@ class PerplexitySearch:
         Returns:
             Dict with answer and sources
         """
-        return await self._query(query, self.MODEL_RESEARCH, max_tokens=8192)
+        return await self._query(query, self.MODEL_RESEARCH)
 
     async def perplexity_reason(self, query: str) -> dict:
         """
