@@ -30,6 +30,6 @@ ENV MCP_HOST=0.0.0.0
 ENV MCP_PORT=8001
 EXPOSE 8001
 
-# Run the server
-CMD ["uv", "run", "--frozen", "python", "main.py"]
+# Run the server (--no-sync since deps installed at build time)
+CMD ["uv", "run", "--no-sync", "python", "main.py"]
 
