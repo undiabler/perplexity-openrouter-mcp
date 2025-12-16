@@ -65,7 +65,7 @@ mcp = FastMCP("Perplexity MCP Server", lifespan=lifespan)
 mcp.add_middleware(BearerAuthMiddleware())
 
 @mcp.tool()
-async def perplexity_search(query: str) -> dict:
+async def perplexity_search(query: str) -> str:
     """
     Performs web search using the Perplexity Search API.
 
@@ -76,12 +76,12 @@ async def perplexity_search(query: str) -> dict:
         query: Search query string
 
     Returns:
-        Dict with answer and sources (list of {url, title} citations)
+        Answer text with markdown sources list appended
     """
     return await get_search().perplexity_search(query)
 
 @mcp.tool()
-async def perplexity_ask(query: str) -> dict:
+async def perplexity_ask(query: str) -> str:
     """
     Engages in a conversation using the Sonar API.
 
@@ -92,12 +92,12 @@ async def perplexity_ask(query: str) -> dict:
         query: Question to ask
 
     Returns:
-        Dict with answer and sources (list of {url, title} citations)
+        Answer text with markdown sources list appended
     """
     return await get_search().perplexity_ask(query)
 
 @mcp.tool()
-async def perplexity_research(query: str) -> dict:
+async def perplexity_research(query: str) -> str:
     """
     Performs deep research using the Perplexity API.
 
@@ -108,12 +108,12 @@ async def perplexity_research(query: str) -> dict:
         query: Research topic or question
 
     Returns:
-        Dict with answer and sources (list of {url, title} citations)
+        Answer text with markdown sources list appended
     """
     return await get_search().perplexity_research(query)
 
 @mcp.tool()
-async def perplexity_reason(query: str) -> dict:
+async def perplexity_reason(query: str) -> str:
     """
     Performs reasoning tasks using the Perplexity API.
 
@@ -124,7 +124,7 @@ async def perplexity_reason(query: str) -> dict:
         query: Problem or question requiring reasoning
 
     Returns:
-        Dict with answer and sources (list of {url, title} citations)
+        Answer text with markdown sources list appended
     """
     return await get_search().perplexity_reason(query)
 

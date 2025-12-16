@@ -27,19 +27,18 @@ class PerplexitySearch:
         """
         self.client = OpenRouterClient(api_key=api_key)
 
-    def _format_citations(self, content: str, annotations: list | None) -> list[dict]:
+    def _format_citations(self, annotations: list | None) -> str:
         """
-        Extract citation sources from annotations.
+        Format citation sources as markdown ordered list.
 
         Args:
-            content: The LLM response content with [1], [2] style citations
             annotations: List of annotation objects from the API response
 
         Returns:
-            List of source dicts with url and title
+            Markdown formatted sources section, or empty string if no sources
         """
         if not annotations:
-            return []
+            return ""
 
         sources = []
         for ann in annotations:
@@ -63,9 +62,13 @@ class PerplexitySearch:
                 if url:
                     sources.append({"url": url, "title": title})
 
-        return sources
+        if not sources:
+            return ""
 
-    async def _query(self, query: str, model: str) -> dict:
+        lines = [f"{i + 1}. [{s['title']}]({s['url']})" for i, s in enumerate(sources)]
+        return "\n\n## Sources\n" + "\n".join(lines)
+
+    async def _query(self, query: str, model: str) -> str:
         """
         Internal method to query a Perplexity model.
 
@@ -74,21 +77,17 @@ class PerplexitySearch:
             model: Perplexity model to use
 
         Returns:
-            Dict with answer and sources
+            Answer text with markdown sources section appended
         """
         response = await self.client.chat_completion(
             prompt=query,
             model=model,
         )
 
-        sources = self._format_citations(response["content"], response["annotations"])
+        sources_text = self._format_citations(response["annotations"])
+        return response["content"] + sources_text
 
-        return {
-            "answer": response["content"],
-            "sources": sources,
-        }
-
-    async def perplexity_search(self, query: str) -> dict:
+    async def perplexity_search(self, query: str) -> str:
         """
         Direct web search using Perplexity Search API.
         Best for: Finding current information quickly.
@@ -97,11 +96,11 @@ class PerplexitySearch:
             query: Search query
 
         Returns:
-            Dict with answer and sources
+            Answer text with markdown sources list appended
         """
         return await self._query(query, self.MODEL_SEARCH)
 
-    async def perplexity_ask(self, query: str) -> dict:
+    async def perplexity_ask(self, query: str) -> str:
         """
         General-purpose conversational AI with real-time web search.
         Best for: Answering questions with up-to-date information.
@@ -110,11 +109,11 @@ class PerplexitySearch:
             query: Question to ask
 
         Returns:
-            Dict with answer and sources
+            Answer text with markdown sources list appended
         """
         return await self._query(query, self.MODEL_ASK)
 
-    async def perplexity_research(self, query: str) -> dict:
+    async def perplexity_research(self, query: str) -> str:
         """
         Deep, comprehensive research using sonar-deep-research model.
         Best for: In-depth research requiring multiple sources.
@@ -123,11 +122,11 @@ class PerplexitySearch:
             query: Research topic or question
 
         Returns:
-            Dict with answer and sources
+            Answer text with markdown sources list appended
         """
         return await self._query(query, self.MODEL_RESEARCH)
 
-    async def perplexity_reason(self, query: str) -> dict:
+    async def perplexity_reason(self, query: str) -> str:
         """
         Advanced reasoning and problem-solving.
         Best for: Complex problems requiring step-by-step reasoning.
@@ -136,7 +135,7 @@ class PerplexitySearch:
             query: Problem or question requiring reasoning
 
         Returns:
-            Dict with answer and sources
+            Answer text with markdown sources list appended
         """
         return await self._query(query, self.MODEL_REASON)
 
