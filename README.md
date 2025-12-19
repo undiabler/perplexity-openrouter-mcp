@@ -15,6 +15,7 @@ This wrapper solves these problems by providing access through the universal Ope
 ## Features
 
 - Remote MCP server with simple authentication
+- Universal sanitizer handles extra metadata fields (tool, id, toolCallId) that some MCP clients inject into tool arguments
 - Tool naming compatible with the [official Perplexity MCP](https://docs.perplexity.ai/guides/mcp-server#available-tools)
 
 ## Installation and Usage
